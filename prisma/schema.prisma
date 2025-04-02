@@ -13,48 +13,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//Remember : mingration command when visit again 
+
+
 model User {
-  id          String        @id    @default(uuid())
-  email       String        @unique
-  name        String?
-  password    String?
-  createdAt   DateTime      @default(now())
-  posts       ScheduledPost[]
-  accounts    Account[]
-  sessions    Session[]
+  id            String        @id     @default(uuid())
+  posts         Post[]     
+  createdAT     DateTime      @default(now())
+  email         String        @unique
+  name          String   
 }
 
 
-model ScheduledPost {
-  id          String        @id     @default(uuid())
-  user        User          @relation(fields: [userId], references: [id])
-  userId      String
-  platform    String
-  content     String
-  mediaUrl    String?
-  scheduledAt DateTime      @default(now())
-  status      String        @default("pending")
-}
 
-
-model Account {
-  id            String        @id       @default(uuid())
-  userId        String
-  type          String
-  provider      String
-  access_token  String?
-  expires_At    Int?
-  token_type    String?
-  scope         String?
-  id_token      String?
-  user          User        @relation(fields: [userId] , references: [id])
-}
-
-model Session {
-  id            String        @id       @default(uuid())
-  sessionToken  String        @unique
-  userId        String        
-  expires       DateTime
+model Post {
+  id            String        @id     @default(uuid())
+  text          String?
+  image         String?
+  video         String?
+  scheduleAt    DateTime
+  createdAt     DateTime      @default(now())
+  publishedAt   DateTime
+  status        STATUS
   user          User          @relation(fields: [userId] , references: [id])
+  userId        String
+  platform      PostPlatform[]
+}
+
+//many-to-many join table
+model PostPlatform {
+  id              String        @id     @default(uuid())
+  post            Post          @relation(fields: [postId] , references: [id])
+  postId          String  
+  platform        PLATFORM
+  externalPostId  String?       //store the postId from external Api to track when the post is published
+  publishedAt     DateTime
+
+  @@unique([postId , platform])     //Prevent duplicate Post-platform relationship
+}
+
+
+enum PLATFORM {
+  INSTAGRAM
+  YOUTUBE
+  FACEBOOK
+}
+
+enum STATUS {
+  Pending
+  Draft
+  Scheduled
+  Published 
 }
