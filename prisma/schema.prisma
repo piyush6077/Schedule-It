@@ -20,7 +20,8 @@ model User {
   posts         Post[]     
   createdAT     DateTime      @default(now())
   email         String        @unique
-  name          String   
+  name          String 
+  provider      Provider  
 }
 
 
@@ -63,4 +64,8 @@ enum STATUS {
   Draft
   Scheduled
   Published 
+}
+
+enum Provider {
+  GOOGLE
 }
